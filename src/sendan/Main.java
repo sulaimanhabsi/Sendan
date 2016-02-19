@@ -5,8 +5,6 @@
  */
 package sendan;
 
-import java.util.zip.CRC32;
-import javafx.scene.paint.Color;
 
 /**
  *
@@ -24,12 +22,14 @@ public class Main {
         byte[] Ngot = {'a',0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0x6E};
         byte[] buffer;
         boolean res ;
-        buffer = sendan.switchOn(Sendan.PHASE4);
-        res = sendan.checkStatus(Sendan.MOSQE);
-        buffer = sendan.switchOff(Sendan.UNIT5_UP);
-        res = sendan.checkStatus(Sendan.PHASE4);
-        buffer = sendan.switchOn(Sendan.ALL);
-        res = sendan.checkStatus(Sendan.PARK);
+        
+       for(;;)
+       {
+           buffer = sendan.getRandom();
+           buffer = null;
+       }
+        
+       
         
         
        

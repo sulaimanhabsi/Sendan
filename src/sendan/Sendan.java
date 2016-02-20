@@ -102,7 +102,8 @@ public class Sendan {
 	private long status = 0 ;
 	private byte crc = 0;
 	private CRC8 crc8Engine ;
-        byte BTBuffer [] = new byte[50];
+        byte BTBuffer [] = new byte[30];
+        int BTBufferPos = 0;
            public Sendan()
            {
                status = 0 ;
@@ -155,14 +156,39 @@ public class Sendan {
 	}
 	public boolean setStatus(byte[] packet)
 	{
-            crc8Engine.reset();
-            crc8Engine.update(Arrays.copyOfRange(packet, 0, 9));
-            byte tempCRC = (byte)crc8Engine.getValue() ;
-            if(packet[9]== tempCRC)
+            
+            try
             {
-                status = bytesToLong(Arrays.copyOfRange(packet, 1, 9));
-                crc = tempCRC ;
-                return true;
+               for(int i=0;i<packet.length;i++)
+               {
+                   BTBuffer[BTBufferPos] = packet[i];
+                   if(BTBufferPos<29) BTBufferPos++;
+                   else BTBufferPos = 0;
+               }
+            }
+            catch(Exception ex)
+            {
+                BTBufferPos = 0;
+            }
+            int indexOfSYNC;
+            indexOfSYNC = Arrays.binarySearch(BTBuffer,(byte) 0x61);
+            if(indexOfSYNC <20)
+            {
+                byte tempBuffer[] = new byte[10];
+                for(int i=0;i<10;i++)
+                {
+                    tempBuffer[i]= BTBuffer[indexOfSYNC+i];
+                }
+                crc8Engine.reset();
+                crc8Engine.update(Arrays.copyOfRange(tempBuffer, 0, 9));
+                byte tempCRC = (byte)crc8Engine.getValue() ;
+                BTBufferPos = 0;
+                if(packet[9]== tempCRC)
+                {
+                    status = bytesToLong(Arrays.copyOfRange(tempBuffer, 1, 9));
+                    crc = tempCRC ;
+                    return true;
+                }
             }
             return false;
 	}
